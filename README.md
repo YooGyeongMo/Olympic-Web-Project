@@ -5,10 +5,10 @@
 ## 📌목차
 
 * [개요](#개요)
-* [개발 환경](#개발 환경)
-* [개발 도구](#개발 도구) 
-* [개발 기간](#개발 기간)
-* [R&R](#멤버)
+* [개발 환경](#개발-환경)
+* [개발 도구](#개발-도구) 
+* [개발 기간](#개발-기간)
+* [R&R](#R&R)
 * [기능](#기능)
 * [기대효과](#기대효과)
 * [후기](#후기)
@@ -41,7 +41,7 @@
 
 ## 👨‍💻R&R
 
-FT 유경모 <img src="https://img.shields.io/badge/React-#61DAFB?sytle=for-the-badge&logo=React&logoColor=white">
+FT 유경모 <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=white">
 
 ## 💡기능
 
