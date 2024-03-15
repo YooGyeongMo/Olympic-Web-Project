@@ -29,7 +29,6 @@
 
 * <img src="https://img.shields.io/badge/HTML-%23E34F26?style=for-the-badge&logo=html5&logoColor=white"><img src="https://img.shields.io/badge/CSS-%231572B6?style=for-the-badge&logo=css3&logoColor=white"><img src="https://img.shields.io/badge/JS-%23F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
 * <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=white">
-
 * <img src="https://img.shields.io/badge/Firebase-%23039BE5?style=for-the-badge&logo=firebase">
 * <img src="https://img.shields.io/badge/React_Router-%23CA4245?style=for-the-badge&logo=react-router&logoColor=white">
 * <img src="https://img.shields.io/badge/Google_Maps_API-%234285F4?style=for-the-badge&logo=google-maps&logoColor=white">
