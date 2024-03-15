@@ -26,15 +26,16 @@
 
 ## 🛠개발 도구
 
-* <img src="https://img.shields.io/badge/HTML-%23E34F26?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/CSS-%231572B6?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/JS-%23F7DF1E?style=for-the-badge&logo=JS&logoColor=black">
+* HTML: <img src="https://img.shields.io/badge/HTML-%23E34F26?style=for-the-badge&logo=html5&logoColor=white">CSS: <img src="https://img.shields.io/badge/CSS-%231572B6?style=for-the-badge&logo=css3&logoColor=white">JavaScript: <img src="https://img.shields.io/badge/JS-%23F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+* React: <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=black">
 
-* <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=black">
-* Firebase SDK
-* React Router
-* Google Maps JavaScript API
-* React Google Maps
-* Geolocation API
-* Places API
+* Firebase SDK: <img src="https://img.shields.io/badge/Firebase-%23039BE5?style=for-the-badge&logo=firebase">
+* React Router: <img src="https://img.shields.io/badge/React_Router-%23CA4245?style=for-the-badge&logo=react-router&logoColor=white">
+* Google Maps JavaScript API: <img src="https://img.shields.io/badge/Google_Maps_API-%234285F4?style=for-the-badge&logo=google-maps&logoColor=white">
+* React Google Maps: <img src="https://img.shields.io/badge/React_Google_Maps-%2361DAFB?style=for-the-badge&logo=react&logoColor=white">
+* Geolocation API: <img src="https://img.shields.io/badge/Geolocation_API-%23424242?style=for-the-badge&logo=javascript&logoColor=white">
+* Places API: <img src="https://img.shields.io/badge/Places_API-%23424242?style=for-the-badge&logo=google-maps&logoColor=white">
+
 
 ## 📆개발 기간
 
