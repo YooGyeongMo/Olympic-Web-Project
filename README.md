@@ -26,8 +26,8 @@
 
 ## 🛠개발 도구
 
-* HTML CSS JS
-* React.Js
+* <img src="https://img.shields.io/badge/HTML-%#E34F26?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/CSS-%#1572B6?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/JS-%#F7DF1E?style=for-the-badge&logo=JS&logoColor=black">
+* <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=black">
 * Firebase SDK
 * React Router
 * Google Maps JavaScript API
@@ -41,7 +41,11 @@
 
 ## 👨‍💻R&R
 
-FT 유경모 <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=white">
+FE 유경모
+FE 
+BE
+BE
+
 
 ## 💡기능
 
