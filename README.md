@@ -26,7 +26,8 @@
 
 ## 🛠개발 도구
 
-* <img src="https://img.shields.io/badge/HTML-%#E34F26?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/CSS-%#1572B6?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/JS-%#F7DF1E?style=for-the-badge&logo=JS&logoColor=black">
+* <img src="https://img.shields.io/badge/HTML-%23E34F26?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/CSS-%231572B6?style=for-the-badge&logo=HTML&logoColor=black"><img src="https://img.shields.io/badge/JS-%23F7DF1E?style=for-the-badge&logo=JS&logoColor=black">
+
 * <img src="https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=React&logoColor=black">
 * Firebase SDK
 * React Router
