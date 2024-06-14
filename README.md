@@ -1,4 +1,5 @@
-# Olypic-Web-Project
+# Olympic-Web-Project
+# Safety-Paris
 
 파리 올림픽 기간 동안의 소매치기 예방을 위한 소매치기 위험구역 알림 웹 서비스
 
