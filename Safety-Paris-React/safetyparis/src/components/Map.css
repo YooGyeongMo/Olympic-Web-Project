@@ -3,3 +3,9 @@
     height: 100vh; /* 높이를 브라우저의 전체 높이로 설정 */
     background-color: #e0e0e0; /* 맵 로딩 전 배경색 설정 */
   }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
