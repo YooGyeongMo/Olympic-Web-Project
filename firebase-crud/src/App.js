@@ -1,10 +1,11 @@
 import React from "react";
 import DataTable from "./components/DataTable";
+import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <h1>Firebase CRUD</h1>
+      <h1 className="h1">관리자 페이지</h1>
       <DataTable />
     </div>
   );
