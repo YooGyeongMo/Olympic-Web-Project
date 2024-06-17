@@ -13,7 +13,7 @@ const Map = () => {
   const [longitude, setLongitude] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState(""); // address 상태 추가
-  const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA"; // API 키 설정
+  const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA"; // API 키 설정 dd
 
   useEffect(() => {
     const initMap = () => {
