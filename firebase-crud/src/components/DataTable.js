@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { database } from "../firebase";
 import { ref, onValue, push, remove, update } from "firebase/database";
@@ -9,6 +8,7 @@ const DataTable = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [modalMessage, setModalMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [details, setDetails] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -99,8 +99,18 @@ const DataTable = () => {
     setSelectedRow(null);
   };
 
+  const handleDetailsClick = (reportID) => {
+    const reportDetailRef = ref(database, `Reports/${reportID}`);
+    onValue(reportDetailRef, (snapshot) => {
+      setDetails(snapshot.val());
+      setModalMessage(`Report ID: ${reportID}\n\n Details: ${snapshot.val()}`);
+      setShowModal(true);
+    });
+  };
+
   const closeModal = () => {
     setShowModal(false);
+    setDetails("");
   };
 
   const notAcceptedData = data.filter((item) => !item.accept);
@@ -108,10 +118,9 @@ const DataTable = () => {
 
   return (
     <div className="table-container">
-      <h2>Data Table</h2>
+      <h3>승인 처리 필요</h3>
       <div className="table-wrapper">
         <div className="table-section">
-          <h3>Not Accepted</h3>
           <table>
             <thead>
               <tr>
@@ -126,7 +135,7 @@ const DataTable = () => {
                 <th>안경 유무</th>
                 <th>키</th>
                 <th>덩치</th>
-                <th>규모(명수)</th>
+                <th>세부내용</th>
                 <th>Accept</th>
               </tr>
             </thead>
@@ -153,7 +162,11 @@ const DataTable = () => {
                   <td>{row.glasses ? "Yes" : "No"}</td>
                   <td>{row.body_length}</td>
                   <td>{row.body_size}</td>
-                  <td>{row.scale}</td>
+                  <td>
+                    <button onClick={() => handleDetailsClick(row.reportID)}>
+                      세부내용 보기
+                    </button>
+                  </td>
                   <td>
                     <input
                       type="checkbox"
@@ -166,8 +179,11 @@ const DataTable = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <h3>승인 처리 완료</h3>
+      <div className="table-wrapper">
         <div className="table-section">
-          <h3>Accepted</h3>
           <table>
             <thead>
               <tr>
@@ -182,7 +198,7 @@ const DataTable = () => {
                 <th>안경 유무</th>
                 <th>키</th>
                 <th>덩치</th>
-                <th>규모(명수)</th>
+                <th>세부내용</th>
                 <th>Accept</th>
               </tr>
             </thead>
@@ -209,7 +225,11 @@ const DataTable = () => {
                   <td>{row.glasses ? "Yes" : "No"}</td>
                   <td>{row.body_length}</td>
                   <td>{row.body_size}</td>
-                  <td>{row.scale}</td>
+                  <td>
+                    <button onClick={() => handleDetailsClick(row.reportID)}>
+                      세부내용 보기
+                    </button>
+                  </td>
                   <td>
                     <input
                       type="checkbox"
