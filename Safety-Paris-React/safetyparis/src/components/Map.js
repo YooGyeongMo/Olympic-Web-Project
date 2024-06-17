@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { database } from "../firebase";
 import { ref, push } from "firebase/database";
 import { geocodeAddress } from "../geocode"; // Geocoding 함수 임포트
@@ -51,29 +51,9 @@ const Map = () => {
         }
       }
     );
-  }, []); // 의존성 배열이 비어있어 맵 초기화는 컴포넌트가 마운트될 때 한 번만 실행됩니다.
+  }, [apiKey]); // 의존성 배열이 비어있어 맵 초기화는 컴포넌트가 마운트될 때 한 번만 실행됩니다.
 
-  // 맵 클릭 리스너를 관리하는 useEffect
-  useEffect(() => {
-    let clickListener;
-    if (map && markerMode) {
-      // markerMode가 true일 때만 리스너를 추가
-      clickListener = map.addListener("click", (e) => {
-        console.log("Map clicked, Marker Mode:", markerMode);
-        // markerMode가 false로 전환될 때 마커 제거
-        placeMarker(e.latLng, map);
-      });
-    }
-
-    // Cleanup 함수: 컴포넌트가 언마운트되거나 markerMode가 변경될 때 리스너를 제거
-    return () => {
-      if (clickListener) {
-        window.google.maps.event.removeListener(clickListener);
-      }
-    };
-  }, [map, markerMode]); // map과 markerMode가 변경될 때마다 실행
-
-  const placeMarker = (location, mapInstance) => {
+  const placeMarker = useCallback((location, mapInstance) => {
     if (marker) {
       marker.setPosition(location); // 기존 마커의 위치를 업데이트
     } else {
@@ -85,7 +65,25 @@ const Map = () => {
     }
     setLatitude(location.lat().toFixed(6));
     setLongitude(location.lng().toFixed(6));
-  };
+  }, [marker]);
+
+  useEffect(() => {
+    let clickListener;
+    if (map && markerMode) {
+      // markerMode가 true일 때만 리스너를 추가
+      clickListener = map.addListener("click", (e) => {
+        console.log("Map clicked, Marker Mode:", markerMode);
+        placeMarker(e.latLng, map);
+      });
+    }
+
+    // Cleanup 함수: 컴포넌트가 언마운트되거나 markerMode가 변경될 때 리스너를 제거
+    return () => {
+      if (clickListener) {
+        window.google.maps.event.removeListener(clickListener);
+      }
+    };
+  }, [map, markerMode, placeMarker]); // map과 markerMode가 변경될 때마다 실행
 
   const handleGeocode = async (e) => {
     e.preventDefault();
