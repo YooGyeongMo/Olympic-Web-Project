@@ -1,36 +1,180 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { database } from "../firebase";
+import { ref, push } from "firebase/database";
+import { geocodeAddress } from "../geocode"; // Geocoding 함수 임포트
 import "./Map.css";
 
 const Map = () => {
+  const [markerMode, setMarkerMode] = useState(false);
+  const [marker, setMarker] = useState(null);
+  const [map, setMap] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState(""); // address 상태 추가
+  const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA"; // API 키 설정
+
   useEffect(() => {
-    // 전역 네임스페이스에 initMap을 할당
-    window.initMap = () => {
-      new window.google.maps.Map(document.getElementById("map"), {
-        center: { lat: 48.8575, lng: 2.3514 },
-        zoom: 13,
-      });
+    const initMap = () => {
+      const mapInstance = new window.google.maps.Map(
+        document.getElementById("map"),
+        {
+          center: { lat: 48.8575, lng: 2.3514 },
+          zoom: 13,
+        }
+      );
+      setMap(mapInstance);
     };
 
-    // 스크립트 로드 함수
-    const loadScript = (url) => {
+    const loadScript = (url, callback) => {
       const scriptExists = document.querySelector(`script[src="${url}"]`);
       if (!scriptExists) {
         let script = document.createElement("script");
         script.type = "text/javascript";
         script.src = url;
         script.async = true;
-        script.onload = () => console.log("Google Maps API 로드 완료");
+        script.onload = callback;
         document.head.appendChild(script);
+      } else {
+        callback();
       }
     };
 
-    // Google Maps 스크립트 로드
     loadScript(
-      `https://maps.googleapis.com/maps/api/js?key=AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA&callback=initMap`
+      `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`,
+      () => {
+        if (window.google && window.google.maps) {
+          initMap();
+        } else {
+          console.error("Google Maps API failed to load.");
+        }
+      }
     );
-  }, []);
+  }, []); // 의존성 배열이 비어있어 맵 초기화는 컴포넌트가 마운트될 때 한 번만 실행됩니다.
 
-  return <div id="map"></div>;
+  // 맵 클릭 리스너를 관리하는 useEffect
+  useEffect(() => {
+    let clickListener;
+    if (map && markerMode) {
+      // markerMode가 true일 때만 리스너를 추가
+      clickListener = map.addListener("click", (e) => {
+        console.log("Map clicked, Marker Mode:", markerMode);
+        // markerMode가 false로 전환될 때 마커 제거
+        placeMarker(e.latLng, map);
+      });
+    }
+
+    // Cleanup 함수: 컴포넌트가 언마운트되거나 markerMode가 변경될 때 리스너를 제거
+    return () => {
+      if (clickListener) {
+        window.google.maps.event.removeListener(clickListener);
+      }
+    };
+  }, [map, markerMode]); // map과 markerMode가 변경될 때마다 실행
+
+  const placeMarker = (location, mapInstance) => {
+    if (marker) {
+      marker.setPosition(location); // 기존 마커의 위치를 업데이트
+    } else {
+      const newMarker = new window.google.maps.Marker({
+        position: location,
+        map: mapInstance,
+      });
+      setMarker(newMarker);
+    }
+    setLatitude(location.lat().toFixed(6));
+    setLongitude(location.lng().toFixed(6));
+  };
+
+  const handleGeocode = async (e) => {
+    e.preventDefault();
+    try {
+      const location = await geocodeAddress(address, apiKey);
+      setLatitude(location.lat);
+      setLongitude(location.lng);
+      if (map) {
+        placeMarker(
+          new window.google.maps.LatLng(location.lat, location.lng),
+          map
+        );
+      }
+    } catch (error) {
+      console.error("지오코딩 에러 : ", error);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const reportRef = ref(database, "Reports");
+    const newReport = {
+      latitude,
+      longitude,
+      description,
+      timestamp: new Date().toISOString(),
+    };
+    push(reportRef, newReport).then(() => {
+      setMarkerMode(false);
+      setShowForm(false);
+      setLatitude("");
+      setLongitude("");
+      setDescription("");
+      if (marker) {
+        marker.setMap(null);
+        setMarker(null);
+      }
+    });
+  };
+
+  const toggleForm = () => {
+    setShowForm((prev) => !prev);
+    setMarkerMode((prev) => !prev);
+    if (!markerMode && marker) {
+      marker.setMap(null);
+      setMarker(null);
+    }
+  };
+
+  return (
+    <div className="map-container">
+      <div className="top-banner">
+        <button onClick={toggleForm}>{showForm ? "취소" : "제보하기"}</button>
+      </div>
+      <div id="map"></div>
+      <div className={`form-container ${showForm ? "open" : ""}`}>
+        <button className="slide-button" onClick={toggleForm}>
+          {showForm ? "<" : ">"}
+        </button>
+        {showForm && (
+          <form onSubmit={handleSubmit}>
+            <label>
+              위도: <input type="text" value={latitude} readOnly />
+            </label>
+            <label>
+              경도: <input type="text" value={longitude} readOnly />
+            </label>
+            <label>
+              주소:{" "}
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+              <button onClick={handleGeocode}>Geocode</button>
+            </label>
+            <label>
+              설명:{" "}
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </label>
+            <button type="submit">제출</button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Map;

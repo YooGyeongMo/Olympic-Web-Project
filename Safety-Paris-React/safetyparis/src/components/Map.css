@@ -1,11 +1,91 @@
 #map {
-    width: 100%; /* 너비를 브라우저의 전체 너비로 설정 */
-    height: 100vh; /* 높이를 브라우저의 전체 높이로 설정 */
-    background-color: #e0e0e0; /* 맵 로딩 전 배경색 설정 */
-  }
+  width: 100%;
+  height: 100vh; /*뷰포트 높이에 맞추어 전체화면을 채운다.*/
+  background-color: #e0e0e0; /* 맵 로딩 전 배경색 설정 */
+}
 
-  html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.map-container {
+  position: relative;
+}
+
+.top-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: rgba(248, 248, 248, 0); /* 약간 투명하게 설정 */
+  z-index: 10; /* 지도 위에 오도록 설정 */
+}
+
+.form-container {
+  position: absolute;
+  top: 0;
+  left: -40%; /* 초기에는 화면 밖에 위치 */
+  width: 40%; /* 열릴 때 너비 */
+  height: 100vh;
+  background-color: white;
+  overflow: hidden;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease; /* 슬라이드 애니메이션 설정 */
+  z-index: 10; /* 지도 위에 오도록 설정 */
+}
+
+.form-container.open {
+  left: 0; /* 열릴 때 화면 안으로 슬라이드 */
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.form-container label {
+  margin-bottom: 10px;
+}
+
+.form-container button {
+  margin-top: 10px;
+}
+
+.slide-button {
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.top-banner button {
+  background-color: white;
+  border: none;
+  color: #3d72ff; /* 글자색 흰색 */
+  padding: 15px 32px; /* 패딩 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  text-decoration: none; /* 텍스트 장식 제거 */
+  display: inline-block; /* 인라인 블록 */
+  font-size: 16px; /* 폰트 크기 */
+  margin: 4px 2px; /* 여백 */
+  cursor: pointer; /* 커서 포인터로 변경 */
+  border-radius: 12px; /* 둥근 모서리 */
+  transition: background-color 0.3s ease; /* 배경색 전환 애니메이션 */
+}
+
+.top-banner button:hover {
+  background-color: #3d72ff; /* 마우스를 올렸을 때 배경색 */
+  color: white;
+}
