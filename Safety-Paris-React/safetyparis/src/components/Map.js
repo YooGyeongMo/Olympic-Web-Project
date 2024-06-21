@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import ReactDOM from "react-dom/client";
 import { database } from "../firebase";
 import { ref, push, onValue } from "firebase/database";
 import { FaPaperPlane } from "react-icons/fa";
@@ -26,7 +27,60 @@ const Map = () => {
   const [currentStep, setCurrentStep] = useState(1); // 제보하기 폼
   const [markers, setMarkers] = useState([]); // Firebase에서 가져온 마커 데이터 저장
   const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  const geocoder = new window.google.maps.Geocoder();
+  const [address, setAddress] = useState("");
+  const [isFormOpen, setFormOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [reportDetails, setReportDetails] = useState(null);
+
+  const fetchReportDetails = useCallback((reportId) => {
+    // 위치 정보 가져오기
+    const locationRef = ref(database, `Locations/${reportId}`);
+    onValue(locationRef, (locationSnapshot) => {
+      const locationData = locationSnapshot.val();
+      if (locationData && locationData.reportID) {
+        // 보고서 세부 정보 가져오기
+        const reportRef = ref(database, `Reports/${locationData.reportID}`);
+        onValue(reportRef, (reportSnapshot) => {
+          const reportData = reportSnapshot.val();
+
+          // 도둑 정보 가져오기
+          const thiefRef = ref(database, `Thiefs`);
+          onValue(thiefRef, (thiefSnapshot) => {
+            const thiefs = thiefSnapshot.val();
+            const thiefData = Object.values(thiefs).find(
+              (thief) => thief.reportID === locationData.reportID
+            );
+
+            if (thiefData) {
+              setReportDetails({
+                ...reportData,
+                ...locationData,
+                ...thiefData,
+              });
+            } else {
+              console.error("Error: Missing thief data.");
+            }
+          });
+        });
+      } else {
+        console.error("Error: Missing location or report data.");
+      }
+    });
+  }, []);
+
+  const openForm = useCallback(
+    (address, reportId) => {
+      setSelectedAddress(address);
+      fetchReportDetails(reportId);
+      setFormOpen(true);
+    },
+    [fetchReportDetails]
+  );
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setSelectedAddress("");
+  };
 
   // 전역 스코프에서 initMap 함수 정의
   window.initMap = () => {
@@ -113,8 +167,12 @@ const Map = () => {
 
   useEffect(() => {
     if (map) {
-      // 마커 추가
       markers.forEach((markerData) => {
+        const position = new window.google.maps.LatLng(
+          markerData.latitude,
+          markerData.longitude
+        );
+
         const newMarker = new window.google.maps.Marker({
           position: { lat: markerData.latitude, lng: markerData.longitude },
           map: map,
@@ -125,18 +183,56 @@ const Map = () => {
           },
         });
 
-        // 마커 클릭 이벤트 추가
-        const infoWindow = new window.google.maps.InfoWindow({
-          content: `
-            `,
-        });
+        const div = document.createElement("div");
+        const root = ReactDOM.createRoot(div);
+        const content = (
+          <InfoWindowContent
+            address={markerData.address}
+            onOpenForm={openForm}
+            reportId={markerData.id} // reportId 추가
+          />
+        );
+        root.render(content);
+
+        const infoWindow = new window.google.maps.InfoWindow({ content: div });
+
         newMarker.addListener("click", () => {
-          map.panTo(newMarker.getPosition());
+          map.panTo(position);
           infoWindow.open(map, newMarker);
         });
       });
     }
-  }, [map, markers]);
+  }, [map, markers, openForm]);
+
+  const InfoWindowContent = ({ address, onOpenForm, reportId }) => {
+    return (
+      <div className="info-window-1">
+        <div className="info-window-2">
+          <MdOutlineLocalPolice
+            className="marker-info-icon"
+            style={{ marginRight: "8px" }}
+          />
+          <span className="marker-info-window-caution">위험지역</span>
+        </div>
+        <div className="info-window-3">
+          <p className="marker-info-address">{address}</p>
+          <button
+            className="marker-info-btn"
+            onClick={() => onOpenForm(address, reportId)}
+          >
+            자세히 보기
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (reportDetails) {
+      // 데이터를 성공적으로 가져왔을 때 필요한 추가 작업 수행
+      console.log(reportDetails);
+    }
+  }, [reportDetails]);
 
   const placeMarker = useCallback(
     (location, mapInstance) => {
@@ -156,6 +252,18 @@ const Map = () => {
       }
       setLatitude(location.lat().toFixed(6));
       setLongitude(location.lng().toFixed(6));
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ location: location }, (results, status) => {
+        if (status === "OK") {
+          if (results[0]) {
+            setAddress(results[0].formatted_address);
+          } else {
+            console.log("No results found");
+          }
+        } else {
+          console.log("Geocoder failed due to: " + status);
+        }
+      });
     },
     [marker]
   );
@@ -175,21 +283,6 @@ const Map = () => {
       }
     };
   }, [map, markerMode, placeMarker]);
-
-  const geocodeLatLng = (lat, lng, callback) => {
-    const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
-    geocoder.geocode({ location: latlng }, (results, status) => {
-      if (status === "OK") {
-        if (results[0]) {
-          callback(results[0].formatted_address);
-        } else {
-          callback("주소를 찾을 수 없습니다.");
-        }
-      } else {
-        callback("지오코딩 실패: " + status);
-      }
-    });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -213,80 +306,78 @@ const Map = () => {
     const defaultBodySize = "범인 체형 알 수없음";
     const defaultScale = "범인들의 규모 알 수없음";
 
-    geocodeLatLng(latitude, longitude, (address) => {
-      const reportRef = ref(database, "Reports");
-      const newReport = {
-        accept: false,
-        ReportsDetail: description || defaultDescription,
-        timestamp: new Date().toISOString(), // 현재 시각을 timestamp로 추가
-      };
+    const reportRef = ref(database, "Reports");
+    const newReport = {
+      accept: false,
+      ReportsDetail: description || defaultDescription,
+      timestamp: new Date().toISOString(), // 현재 시각을 timestamp로 추가
+    };
 
-      push(reportRef, newReport)
-        .then((reportSnapshot) => {
-          const reportID = reportSnapshot.key;
+    push(reportRef, newReport)
+      .then((reportSnapshot) => {
+        const reportID = reportSnapshot.key;
 
-          const locationRef = ref(database, "Locations");
-          const newLocation = {
+        const locationRef = ref(database, "Locations");
+        const newLocation = {
+          reportID: reportID,
+          address,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        };
+
+        push(locationRef, newLocation).then(() => {
+          const thiefRef = ref(database, "Thiefs");
+          const newThief = {
             reportID: reportID,
-            latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude),
-            address: address, // 지오코딩된 주소 추가
+            stolen_things: stolenThings || defaultStolenThings,
+            gender: gender || defaultGender,
+            race: race || defaultRace,
+            shave: shave ? "Yes" : "No",
+            glasses: glasses ? "Yes" : "No",
+            body_length: bodyLength || defaultBodyLength, // 문자열로 기본값 설정
+            body_size: bodySize || defaultBodySize,
+            scale: scale || defaultScale, // 문자열로 기본값 설정
           };
 
-          push(locationRef, newLocation).then(() => {
-            const thiefRef = ref(database, "Thiefs");
-            const newThief = {
-              reportID: reportID,
-              stolen_things: stolenThings || defaultStolenThings,
-              gender: gender || defaultGender,
-              race: race || defaultRace,
-              shave: shave ? "Yes" : "No",
-              glasses: glasses ? "Yes" : "No",
-              body_length: bodyLength || defaultBodyLength, // 문자열로 기본값 설정
-              body_size: bodySize || defaultBodySize,
-              scale: scale || defaultScale, // 문자열로 기본값 설정
-            };
+          console.log(newThief, newLocation, newReport); // 실제로 저장되는 값 확인
 
-            console.log(newThief, newLocation, newReport); // 실제로 저장되는 값 확인
-
-            push(thiefRef, newThief).then(() => {
-              setMarkerMode(false);
-              setShowForm(false);
-              setLatitude("");
-              setLongitude("");
-              setDescription("");
-              setStolenThings("");
-              setGender("");
-              setRace("");
-              setShave(false);
-              setGlasses(false);
-              setBodyLength("");
-              setBodySize("");
-              setScale("");
-              if (marker) {
-                marker.setMap(null);
-                setMarker(null); //마커
-              }
-              // 성공 메시지 표시
-              Swal.fire({
-                title: "성공",
-                text: "제보가 성공적으로 접수되었습니다.<br>귀하의 관심에 진심으로 감사드립니다.",
-                icon: "success",
-              }).then(() => {
-                window.location.reload();
-              });
+          push(thiefRef, newThief).then(() => {
+            setMarkerMode(false);
+            setShowForm(false);
+            setLatitude("");
+            setLongitude("");
+            setDescription("");
+            setStolenThings("");
+            setGender("");
+            setRace("");
+            setShave(false);
+            setGlasses(false);
+            setBodyLength("");
+            setBodySize("");
+            setScale("");
+            if (marker) {
+              marker.setMap(null);
+              setMarker(null); //마커
+            }
+            // 성공 메시지 표시
+            Swal.fire({
+              title: "성공",
+              text: "제보가 성공적으로 접수되었습니다.귀하의 관심에 진심으로 감사드립니다.",
+              icon: "success",
+            }).then(() => {
+              window.location.reload();
             });
           });
-        })
-        .catch((error) => {
-          // 에러 처리
-          Swal.fire({
-            title: "오류",
-            text: `제보 중 오류가 발생했습니다:<br>${error.message}`,
-            icon: "error",
-          });
         });
-    });
+      })
+      .catch((error) => {
+        // 에러 처리
+        Swal.fire({
+          title: "오류",
+          text: `제보 중 오류가 발생했습니다:<br>${error.message}`,
+          icon: "error",
+        });
+      });
   };
 
   const toggleForm = () => {
@@ -300,6 +391,7 @@ const Map = () => {
     setCurrentStep(1);
     setLatitude("");
     setLongitude("");
+    setAddress(""); // 주소 초기화 추가
     setDescription("");
     setStolenThings("");
     setGender("");
@@ -325,7 +417,6 @@ const Map = () => {
 
   return (
     <div className="map-container">
-      {/* 로딩 스피너 */}
       <div className="top-banner">
         <div className="logo-container">
           <button className="logo-button">Safety Paris</button>
@@ -500,9 +591,35 @@ const Map = () => {
           </form>
         )}
       </div>
+      {/*마커 폼 */}
+      {isFormOpen && (
+        <div className="overlay">
+          <div className="central-form">
+            <div className="form-header">
+              <h2>자세한 정보</h2>
+              <button onClick={closeForm}>닫기</button>
+            </div>
+            <p>{selectedAddress}</p>
+            {reportDetails && (
+              <div>
+                <h2>인상착의</h2>
+                <p>성별: {reportDetails.gender}</p>
+                <p>인종: {reportDetails.race}</p>
+                <p>수염 유무: {reportDetails.shave}</p>
+                <p>안경 유무: {reportDetails.glasses}</p>
+                <p>키: {reportDetails.body_length}</p>
+                <p>체형: {reportDetails.body_size}</p>
+                <p>범인의 인원 수: {reportDetails.scale}</p>
+                <h2>상세한 설명</h2>
+                <p>도난 품목: {reportDetails.stolen_things}</p>
+                <p>상세 내용: {reportDetails.ReportsDetail}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Map;
-
