@@ -22,18 +22,19 @@ const Map = () => {
   const [scale, setScale] = useState(""); //범인 인원수
   const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA";
 
-  useEffect(() => {
-    const initMap = () => {
-      const mapInstance = new window.google.maps.Map(
-        document.getElementById("map"),
-        {
-          center: { lat: 48.8575, lng: 2.3514 },
-          zoom: 13,
-        }
-      );
-      setMap(mapInstance);
-    };
+  // 전역 스코프에서 initMap 함수 정의
+  window.initMap = () => {
+    const mapInstance = new window.google.maps.Map(
+      document.getElementById("map"),
+      {
+        center: { lat: 48.8575, lng: 2.3514 },
+        zoom: 13,
+      }
+    );
+    setMap(mapInstance);
+  };
 
+  useEffect(() => {
     const loadScript = (url, callback) => {
       const scriptExists = document.querySelector(`script[src="${url}"]`);
       if (!scriptExists) {
@@ -41,6 +42,7 @@ const Map = () => {
         script.type = "text/javascript";
         script.src = url;
         script.async = true;
+        script.defer = true;
         script.onload = callback;
         document.head.appendChild(script);
       } else {
@@ -52,7 +54,7 @@ const Map = () => {
       `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`,
       () => {
         if (window.google && window.google.maps) {
-          initMap();
+          window.initMap();
         } else {
           console.error("Google Maps API failed to load.");
         }
