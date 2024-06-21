@@ -19,7 +19,7 @@ const Map = () => {
   const [glasses, setGlasses] = useState(false);
   const [bodyLength, setBodyLength] = useState("");
   const [bodySize, setBodySize] = useState("");
-  const [scale, setScale] = useState("");
+  const [scale, setScale] = useState(""); //범인 인원수
   const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA";
 
   useEffect(() => {
