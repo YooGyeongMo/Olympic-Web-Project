@@ -159,7 +159,7 @@ const Map = () => {
           setScale("");
           if (marker) {
             marker.setMap(null);
-            setMarker(null);
+            setMarker(null); //마커
           }
         });
       });
