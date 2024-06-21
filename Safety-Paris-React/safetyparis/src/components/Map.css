@@ -15,6 +15,11 @@ body {
   position: relative;
 }
 
+.logo-container {
+  position: absolute;
+  left: 10px; /* 로고를 왼쪽 끝에 위치시키기 위해 절대 위치 지정 */
+}
+
 .top-banner {
   position: absolute;
   top: 0;
@@ -31,10 +36,10 @@ body {
 .form-container {
   position: absolute;
   top: 0;
-  left: -40%; /* 초기에는 화면 밖에 위치 */
-  width: 40%; /* 열릴 때 너비 */
+  left: -30%; /* 초기에는 화면 밖에 위치 */
+  width: 30%; /* 열릴 때 너비 */
   height: 100vh;
-  background-color: white;
+  background-color: #F4F6FA;
   overflow: hidden;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
   transition: left 0.3s ease; /* 슬라이드 애니메이션 설정 */
@@ -55,9 +60,25 @@ body {
   margin-bottom: 10px;
 }
 
-.form-container button {
-  margin-top: 10px;
+.submit-btn {
+  background-color: white;
+  border: none;
+  color: #3d72ff; /* 글자색 흰색 */
+  padding: 15px 32px; /* 패딩 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  text-decoration: none; /* 텍스트 장식 제거 */
+  display: inline-block; /* 인라인 블록 */
+  font-size: 30px; /* 폰트 크기 */
+  font-weight: bold; /* 폰트 굵게 */
+  margin: 4px 2px; /* 여백 */
+  cursor: pointer; /* 커서 포인터로 변경 */
+  border-radius: 12px; /* 둥근 모서리 */
 }
+.submit-btn:hover {
+  background-color: #3d72ff; /* 마우스를 올렸을 때 배경색 */
+  color: white;
+}
+
 
 .slide-button {
   position: absolute;
@@ -70,7 +91,7 @@ body {
   transform: translateY(-50%);
 }
 
-.top-banner button {
+.report-btn {
   background-color: white;
   border: none;
   color: #3d72ff; /* 글자색 흰색 */
@@ -78,14 +99,30 @@ body {
   text-align: center; /* 텍스트 가운데 정렬 */
   text-decoration: none; /* 텍스트 장식 제거 */
   display: inline-block; /* 인라인 블록 */
-  font-size: 16px; /* 폰트 크기 */
+  font-size: 17px; /* 폰트 크기 */
+  font-weight: bold; /* 폰트 굵게 */
   margin: 4px 2px; /* 여백 */
   cursor: pointer; /* 커서 포인터로 변경 */
   border-radius: 12px; /* 둥근 모서리 */
   transition: background-color 0.3s ease; /* 배경색 전환 애니메이션 */
 }
 
-.top-banner button:hover {
+.report-btn:hover {
   background-color: #3d72ff; /* 마우스를 올렸을 때 배경색 */
   color: white;
+}
+
+.logo-button {
+  background-color: white;
+  border: none;
+  color: #3d72ff; /* 글자색 흰색 */
+  padding: 15px 32px; /* 패딩 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  text-decoration: none; /* 텍스트 장식 제거 */
+  display: inline-block; /* 인라인 블록 */
+  font-size: 30px; /* 폰트 크기 */
+  font-weight: bold; /* 폰트 굵게 */
+  margin: 4px 2px; /* 여백 */
+  cursor: pointer; /* 커서 포인터로 변경 */
+  border-radius: 12px; /* 둥근 모서리 */
 }

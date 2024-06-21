@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { database } from "../firebase";
 import { ref, push } from "firebase/database";
-import { geocodeAddress } from "../geocode"; // Geocoding 함수 임포트
+import { FaPaperPlane } from "react-icons/fa";
 import "./Map.css";
+
+// Text 컴포넌트 정의
+const Text = ({ children }) => (
+  <span className="logo-text-image">{children}</span>
+);
 
 const Map = () => {
   const [markerMode, setMarkerMode] = useState(false);
@@ -29,9 +34,18 @@ const Map = () => {
       {
         center: { lat: 48.8575, lng: 2.3514 },
         zoom: 13,
+        disableDefaultUI: true, // 기본 UI 비활성화 옵션 추가
+        styles: [],
       }
     );
     setMap(mapInstance);
+
+    // POI 클릭 이벤트 막기
+    mapInstance.addListener("click", function (event) {
+      if (event.placeId) {
+        event.stop();
+      }
+    });
   };
 
   useEffect(() => {
@@ -70,6 +84,11 @@ const Map = () => {
         const newMarker = new window.google.maps.Marker({
           position: location,
           map: mapInstance,
+          icon: {
+            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // 파란색 마커 이미지
+            size: new window.google.maps.Size(32, 32), // 마커 크기 설정
+            anchor: new window.google.maps.Point(16, 32), // 마커 앵커 설정
+          },
         });
         setMarker(newMarker);
       }
@@ -95,25 +114,9 @@ const Map = () => {
     };
   }, [map, markerMode, placeMarker]);
 
-  const handleGeocode = async (e) => {
-    e.preventDefault();
-    try {
-      const location = await geocodeAddress(description, apiKey);
-      setLatitude(location.lat);
-      setLongitude(location.lng);
-      if (map) {
-        placeMarker(
-          new window.google.maps.LatLng(location.lat, location.lng),
-          map
-        );
-      }
-    } catch (error) {
-      console.error("지오코딩 에러 : ", error);
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const reportRef = ref(database, "Reports");
     const newReport = {
       accept: false,
@@ -171,16 +174,22 @@ const Map = () => {
   const toggleForm = () => {
     setShowForm((prev) => !prev);
     setMarkerMode((prev) => !prev);
-    if (!markerMode && marker) {
+    if (marker) {
       marker.setMap(null);
-      setMarker(null);
+      setMarker(null); // 마커 제거
     }
   };
 
   return (
     <div className="map-container">
       <div className="top-banner">
-        <button onClick={toggleForm}>{showForm ? "취소" : "제보하기"}</button>
+        <div className="logo-container">
+          <button className="logo-button">Safety Paris</button>
+        </div>
+        <button className="report-btn" onClick={toggleForm}>
+          <FaPaperPlane style={{ marginRight: "8px" }} />
+          {showForm ? "취소" : "제보하기"}
+        </button>
       </div>
       <div id="map"></div>
       <div className={`form-container ${showForm ? "open" : ""}`}>
@@ -275,7 +284,9 @@ const Map = () => {
                 onChange={(e) => setScale(e.target.value)}
               />
             </label>
-            <button type="submit">제출</button>
+            <button className="submit-btn" type="submit">
+              제출
+            </button>
           </form>
         )}
       </div>
