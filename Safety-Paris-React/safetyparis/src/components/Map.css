@@ -36,18 +36,19 @@ body {
 .form-container {
   position: absolute;
   top: 0;
-  left: -30%; /* 초기에는 화면 밖에 위치 */
+  left: 0;
   width: 30%; /* 열릴 때 너비 */
   height: 100vh;
-  background-color: #F4F6FA;
-  overflow: hidden;
+  background-color: white;
+  overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤 가능 */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  transition: left 0.3s ease; /* 슬라이드 애니메이션 설정 */
+  transform: translateX(-100%);
+  transition: transform 0.7s ease; /* 부드러운 전환 효과 */
   z-index: 10; /* 지도 위에 오도록 설정 */
 }
 
 .form-container.open {
-  left: 0; /* 열릴 때 화면 안으로 슬라이드 */
+  transform: translateX(0%);
 }
 
 .form-container form {
@@ -70,11 +71,29 @@ body {
   display: inline-block; /* 인라인 블록 */
   font-size: 30px; /* 폰트 크기 */
   font-weight: bold; /* 폰트 굵게 */
-  margin: 4px 2px; /* 여백 */
+  margin: 4px 20px; /* 여백 */
   cursor: pointer; /* 커서 포인터로 변경 */
   border-radius: 12px; /* 둥근 모서리 */
 }
 .submit-btn:hover {
+  background-color: #3d72ff; /* 마우스를 올렸을 때 배경색 */
+  color: white;
+}
+.form-next-step-btn {
+  background-color: white;
+  border: none;
+  color: #3d72ff; /* 글자색 흰색 */
+  padding: 15px 32px; /* 패딩 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  text-decoration: none; /* 텍스트 장식 제거 */
+  display: inline-block; /* 인라인 블록 */
+  font-size: 30px; /* 폰트 크기 */
+  font-weight: bold; /* 폰트 굵게 */
+  margin: 10px 10px; /* 여백 */
+  cursor: pointer; /* 커서 포인터로 변경 */
+  border-radius: 12px; /* 둥근 모서리 */
+}
+.form-next-step-btn:hover {
   background-color: #3d72ff; /* 마우스를 올렸을 때 배경색 */
   color: white;
 }
@@ -125,4 +144,167 @@ body {
   margin: 4px 2px; /* 여백 */
   cursor: pointer; /* 커서 포인터로 변경 */
   border-radius: 12px; /* 둥근 모서리 */
+}
+
+.intro-title {
+  font-weight: 700;
+  font-size: 30px;
+  color: black;
+  margin-bottom: 10px;
+}
+
+.intro-text {
+  font-weight: 550;
+  color: black;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.form-category {
+  color:black;
+  font-weight: 600;
+  margin-top: 10px;
+  font-size: 18px; 
+}
+
+.form-sex-male {
+  color:black;
+  font-size: 15px;
+}
+.form-sex-female {
+  margin-left: 30px;
+  color:black;
+  font-size: 15px;
+}
+.form-1-title {
+  margin-bottom: 10px;
+  font-size: 30px;
+  color: black;
+  font-weight: 700;
+}
+.form-1-sub-description {
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color:black;
+}
+
+.form-feature-container {
+  display: flex;
+  align-items: center; /* 세로 중심 정렬 */
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.form-feature-item {
+  display: flex;
+  align-items: center; /* 체크박스와 라벨 세로 중심 정렬 */
+  margin-right: 20px; /* 요소 간의 공간 확보 */
+}
+
+.form-feature-label {
+  margin-right: 10px; /* 라벨과 체크박스 사이 공간 */
+  color:black;
+  font-weight: 600;
+  font-size: 18px; 
+}
+
+.form-select {
+  margin-top: 10px;
+  width: 180px;
+  height: 30px;
+  padding: 0 10px; /* 좌우 패딩 */
+  font-size: 12px; /* 글자 크기 */
+  background-color: #fff; /* 배경 색상 */
+  border: 1px solid #ccc; /* 테두리 설정 */
+  border-radius: 4px; /* 경계선 둥글게 */
+}
+
+.form-select option {
+  font-size: 12px; /* 옵션 글자 크기 동일하게 설정 */
+}
+
+.input-height {
+  width: 250px; /* 너비를 부모 컨테이너에 맞게 설정 */
+  height: 10px;
+  padding: 10px; /* 패딩 */
+  font-size: 16px; /* 글자 크기 */
+  border: 1px solid #ccc; /* 테두리 색상 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+.input-height::placeholder{
+    color: #aaa; /* 플레이스홀더 글자 색상 */
+}
+
+.input-weight {
+  width: 250px; /* 너비를 부모 컨테이너에 맞게 설정 */
+  height: 10px;
+  padding: 10px; /* 패딩 */
+  font-size: 16px; /* 글자 크기 */
+  border: 1px solid #ccc; /* 테두리 색상 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+
+.input-weight::placeholder{
+  color: #aaa; /* 플레이스홀더 글자 색상 */
+}
+
+.discription-char-count{
+  font-size: 13px;
+  font-weight: 400;
+  color: black;
+}
+
+.input-steal-things {
+  width: 250px; /* 너비를 부모 컨테이너에 맞게 설정 */
+  height: 10px;
+  padding: 10px; /* 패딩 */
+  font-size: 16px; /* 글자 크기 */
+  border: 1px solid #ccc; /* 테두리 색상 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+.input-steal-things::placeholder {
+  color: #aaa; /* 플레이스홀더 글자 색상 */
+}
+
+.input-scale {
+  width: 250px; /* 너비를 부모 컨테이너에 맞게 설정 */
+  height: 10px;
+  padding: 10px; /* 패딩 */
+  font-size: 16px; /* 글자 크기 */
+  border: 1px solid #ccc; /* 테두리 색상 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+}
+.input-scale::placeholder{
+  color: #aaa; /* 플레이스홀더 글자 색상 */
+}
+
+.crime-explain {
+  padding: 5px; /* 패딩 */
+  font-size: 16px; /* 글자 크기 */
+  border: 1px solid #ccc; /* 테두리 색상 */
+  border-radius: 10px; /* 모서리 둥글게 */
+}
+
+.prevstep-btn {
+  background-color: white;
+  border: none;
+  color: #3d72ff; /* 글자색 흰색 */
+  padding: 15px 32px; /* 패딩 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  text-decoration: none; /* 텍스트 장식 제거 */
+  display: inline-block; /* 인라인 블록 */
+  font-size: 30px; /* 폰트 크기 */
+  font-weight: bold; /* 폰트 굵게 */
+  margin: 4px 2px; /* 여백 */
+  cursor: pointer; /* 커서 포인터로 변경 */
+  border-radius: 12px; /* 둥근 모서리 */
+}
+.prevstep-btn:hover{
+  background-color: #3d72ff;
+  color:white;
 }
