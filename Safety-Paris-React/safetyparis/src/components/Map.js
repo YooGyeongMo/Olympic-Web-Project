@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { database } from "../firebase";
 import { ref, push } from "firebase/database";
-import { geocodeAddress } from "../geocode"; // Geocoding 함수 임포트
+import { FaPaperPlane } from "react-icons/fa";
 import "./Map.css";
+
+// Text 컴포넌트 정의
+const Text = ({ children }) => (
+  <span className="logo-text-image">{children}</span>
+);
 
 const Map = () => {
   const [markerMode, setMarkerMode] = useState(false);
@@ -12,21 +17,38 @@ const Map = () => {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [description, setDescription] = useState("");
-  const [address, setAddress] = useState(""); // address 상태 추가
-  const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA"; // API 키 설정 dd
+  const [stolenThings, setStolenThings] = useState("");
+  const [gender, setGender] = useState("");
+  const [race, setRace] = useState("");
+  const [shave, setShave] = useState(false);
+  const [glasses, setGlasses] = useState(false);
+  const [bodyLength, setBodyLength] = useState("");
+  const [bodySize, setBodySize] = useState("");
+  const [scale, setScale] = useState(""); //범인 인원수
+  const apiKey = "AIzaSyCxCjOgsPDF__iNago8obFLPRIgotaAjsA";
+
+  // 전역 스코프에서 initMap 함수 정의
+  window.initMap = () => {
+    const mapInstance = new window.google.maps.Map(
+      document.getElementById("map"),
+      {
+        center: { lat: 48.8575, lng: 2.3514 },
+        zoom: 13,
+        disableDefaultUI: true, // 기본 UI 비활성화 옵션 추가
+        styles: [],
+      }
+    );
+    setMap(mapInstance);
+
+    // POI 클릭 이벤트 막기
+    mapInstance.addListener("click", function (event) {
+      if (event.placeId) {
+        event.stop();
+      }
+    });
+  };
 
   useEffect(() => {
-    const initMap = () => {
-      const mapInstance = new window.google.maps.Map(
-        document.getElementById("map"),
-        {
-          center: { lat: 48.8575, lng: 2.3514 },
-          zoom: 13,
-        }
-      );
-      setMap(mapInstance);
-    };
-
     const loadScript = (url, callback) => {
       const scriptExists = document.querySelector(`script[src="${url}"]`);
       if (!scriptExists) {
@@ -34,6 +56,7 @@ const Map = () => {
         script.type = "text/javascript";
         script.src = url;
         script.async = true;
+        script.defer = true;
         script.onload = callback;
         document.head.appendChild(script);
       } else {
@@ -45,98 +68,128 @@ const Map = () => {
       `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`,
       () => {
         if (window.google && window.google.maps) {
-          initMap();
+          window.initMap();
         } else {
           console.error("Google Maps API failed to load.");
         }
       }
     );
-  }, [apiKey]); // 의존성 배열이 비어있어 맵 초기화는 컴포넌트가 마운트될 때 한 번만 실행됩니다.
+  }, [apiKey]);
 
-  const placeMarker = useCallback((location, mapInstance) => {
-    if (marker) {
-      marker.setPosition(location); // 기존 마커의 위치를 업데이트
-    } else {
-      const newMarker = new window.google.maps.Marker({
-        position: location,
-        map: mapInstance,
-      });
-      setMarker(newMarker);
-    }
-    setLatitude(location.lat().toFixed(6));
-    setLongitude(location.lng().toFixed(6));
-  }, [marker]);
+  const placeMarker = useCallback(
+    (location, mapInstance) => {
+      if (marker) {
+        marker.setPosition(location);
+      } else {
+        const newMarker = new window.google.maps.Marker({
+          position: location,
+          map: mapInstance,
+          icon: {
+            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // 파란색 마커 이미지
+            size: new window.google.maps.Size(32, 32), // 마커 크기 설정
+            anchor: new window.google.maps.Point(16, 32), // 마커 앵커 설정
+          },
+        });
+        setMarker(newMarker);
+      }
+      setLatitude(location.lat().toFixed(6));
+      setLongitude(location.lng().toFixed(6));
+    },
+    [marker]
+  );
 
   useEffect(() => {
     let clickListener;
     if (map && markerMode) {
-      // markerMode가 true일 때만 리스너를 추가
       clickListener = map.addListener("click", (e) => {
         console.log("Map clicked, Marker Mode:", markerMode);
         placeMarker(e.latLng, map);
       });
     }
 
-    // Cleanup 함수: 컴포넌트가 언마운트되거나 markerMode가 변경될 때 리스너를 제거
     return () => {
       if (clickListener) {
         window.google.maps.event.removeListener(clickListener);
       }
     };
-  }, [map, markerMode, placeMarker]); // map과 markerMode가 변경될 때마다 실행
-
-  const handleGeocode = async (e) => {
-    e.preventDefault();
-    try {
-      const location = await geocodeAddress(address, apiKey);
-      setLatitude(location.lat);
-      setLongitude(location.lng);
-      if (map) {
-        placeMarker(
-          new window.google.maps.LatLng(location.lat, location.lng),
-          map
-        );
-      }
-    } catch (error) {
-      console.error("지오코딩 에러 : ", error);
-    }
-  };
+  }, [map, markerMode, placeMarker]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const reportRef = ref(database, "Reports");
     const newReport = {
-      latitude,
-      longitude,
-      description,
-      timestamp: new Date().toISOString(),
+      accept: false,
+      ReportsDetail: description,
+      timestamp: new Date().toISOString(), // 현재 시각을 timestamp로 추가
     };
-    push(reportRef, newReport).then(() => {
-      setMarkerMode(false);
-      setShowForm(false);
-      setLatitude("");
-      setLongitude("");
-      setDescription("");
-      if (marker) {
-        marker.setMap(null);
-        setMarker(null);
-      }
+
+    push(reportRef, newReport).then((reportSnapshot) => {
+      const reportID = reportSnapshot.key;
+
+      const locationRef = ref(database, "Locations");
+      const newLocation = {
+        reportID: reportID,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      };
+
+      push(locationRef, newLocation).then(() => {
+        const thiefRef = ref(database, "Thiefs");
+        const newThief = {
+          reportID: reportID,
+          stolen_things: stolenThings,
+          gender: gender,
+          race: race,
+          shave: shave ? "Yes" : "No",
+          glasses: glasses,
+          body_length: parseFloat(bodyLength),
+          body_size: bodySize,
+          scale: parseInt(scale, 10),
+        };
+
+        push(thiefRef, newThief).then(() => {
+          setMarkerMode(false);
+          setShowForm(false);
+          setLatitude("");
+          setLongitude("");
+          setDescription("");
+          setStolenThings("");
+          setGender("");
+          setRace("");
+          setShave(false);
+          setGlasses(false);
+          setBodyLength("");
+          setBodySize("");
+          setScale("");
+          if (marker) {
+            marker.setMap(null);
+            setMarker(null); //마커
+          }
+        });
+      });
     });
   };
 
   const toggleForm = () => {
     setShowForm((prev) => !prev);
     setMarkerMode((prev) => !prev);
-    if (!markerMode && marker) {
+    if (marker) {
       marker.setMap(null);
-      setMarker(null);
+      setMarker(null); // 마커 제거
     }
   };
 
   return (
     <div className="map-container">
       <div className="top-banner">
-        <button onClick={toggleForm}>{showForm ? "취소" : "제보하기"}</button>
+        <div className="logo-container">
+          <button className="logo-button">Safety Paris</button>
+        </div>
+        <button className="report-btn" onClick={toggleForm}>
+          <FaPaperPlane style={{ marginRight: "8px" }} />
+          {showForm ? "취소" : "제보하기"}
+        </button>
       </div>
       <div id="map"></div>
       <div className={`form-container ${showForm ? "open" : ""}`}>
@@ -146,28 +199,94 @@ const Map = () => {
         {showForm && (
           <form onSubmit={handleSubmit}>
             <label>
-              위도: <input type="text" value={latitude} readOnly />
-            </label>
-            <label>
-              경도: <input type="text" value={longitude} readOnly />
-            </label>
-            <label>
-              주소:{" "}
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              <button onClick={handleGeocode}>Geocode</button>
-            </label>
-            <label>
               설명:{" "}
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </label>
-            <button type="submit">제출</button>
+            <label>
+              도난 품목:{" "}
+              <input
+                type="text"
+                value={stolenThings}
+                onChange={(e) => setStolenThings(e.target.value)}
+              />
+            </label>
+            <label>
+              성별:{" "}
+              <label>
+                <input
+                  type="radio"
+                  value="Male"
+                  checked={gender === "Male"}
+                  onChange={(e) => setGender(e.target.value)}
+                />
+                남성
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="Female"
+                  checked={gender === "Female"}
+                  onChange={(e) => setGender(e.target.value)}
+                />
+                여성
+              </label>
+            </label>
+            <label>
+              인종:{" "}
+              <select value={race} onChange={(e) => setRace(e.target.value)}>
+                <option value="">선택하세요</option>
+                <option value="Asian">아시아인</option>
+                <option value="Caucasian">백인</option>
+                <option value="African">아프리카인</option>
+                <option value="Hispanic">히스패닉</option>
+              </select>
+            </label>
+            <label>
+              수염:{" "}
+              <input
+                type="checkbox"
+                checked={shave}
+                onChange={(e) => setShave(e.target.checked)}
+              />
+            </label>
+            <label>
+              안경:{" "}
+              <input
+                type="checkbox"
+                checked={glasses}
+                onChange={(e) => setGlasses(e.target.checked)}
+              />
+            </label>
+            <label>
+              키:{" "}
+              <input
+                type="text"
+                value={bodyLength}
+                onChange={(e) => setBodyLength(e.target.value)}
+              />
+            </label>
+            <label>
+              체형:{" "}
+              <input
+                type="text"
+                value={bodySize}
+                onChange={(e) => setBodySize(e.target.value)}
+              />
+            </label>
+            <label>
+              범인의 인원 수:{" "}
+              <input
+                type="text"
+                value={scale}
+                onChange={(e) => setScale(e.target.value)}
+              />
+            </label>
+            <button className="submit-btn" type="submit">
+              제출
+            </button>
           </form>
         )}
       </div>
@@ -176,3 +295,4 @@ const Map = () => {
 };
 
 export default Map;
+

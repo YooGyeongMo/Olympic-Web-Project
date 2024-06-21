@@ -44,28 +44,77 @@ const DataTable = () => {
 
         const reportMap = {};
         for (let id in reports) {
-          reportMap[reports[id].reportID] = { ...reports[id], id: id };
+          reportMap[id] = {
+            ...reports[id],
+            reportID: id,
+            latitude: null,
+            longitude: null,
+            stolen_things: null,
+            gender: null,
+            race: null,
+            shave: null,
+            glasses: null,
+            body_length: null,
+            body_size: null,
+            scale: null,
+          };
         }
         for (let id in locations) {
-          if (reportMap[locations[id].reportID]) {
-            reportMap[locations[id].reportID] = {
-              ...reportMap[locations[id].reportID],
-              ...locations[id],
+          const reportID = locations[id].reportID;
+          if (reportMap[reportID]) {
+            reportMap[reportID] = {
+              ...reportMap[reportID],
+              latitude: locations[id].latitude,
+              longitude: locations[id].longitude,
               locID: id,
             };
           } else {
-            reportMap[locations[id].reportID] = { ...locations[id], locID: id };
+            reportMap[reportID] = {
+              reportID: reportID,
+              latitude: locations[id].latitude,
+              longitude: locations[id].longitude,
+              locID: id,
+              stolen_things: null,
+              gender: null,
+              race: null,
+              shave: null,
+              glasses: null,
+              body_length: null,
+              body_size: null,
+              scale: null,
+            };
           }
         }
         for (let id in thiefs) {
-          if (reportMap[thiefs[id].reportID]) {
-            reportMap[thiefs[id].reportID] = {
-              ...reportMap[thiefs[id].reportID],
-              ...thiefs[id],
+          const reportID = thiefs[id].reportID;
+          if (reportMap[reportID]) {
+            reportMap[reportID] = {
+              ...reportMap[reportID],
+              stolen_things: thiefs[id].stolen_things,
+              gender: thiefs[id].gender,
+              race: thiefs[id].race,
+              shave: thiefs[id].shave,
+              glasses: thiefs[id].glasses,
+              body_length: thiefs[id].body_length,
+              body_size: thiefs[id].body_size,
+              scale: thiefs[id].scale,
               thiefID: id,
             };
           } else {
-            reportMap[thiefs[id].reportID] = { ...thiefs[id], thiefID: id };
+            reportMap[reportID] = {
+              reportID: reportID,
+              latitude: null,
+              longitude: null,
+              stolen_things: thiefs[id].stolen_things,
+              gender: thiefs[id].gender,
+              race: thiefs[id].race,
+              shave: thiefs[id].shave,
+              glasses: thiefs[id].glasses,
+              body_length: thiefs[id].body_length,
+              body_size: thiefs[id].body_size,
+              scale: thiefs[id].scale,
+              thiefID: id,
+            };
           }
         }
         for (let key in reportMap) {
@@ -78,7 +127,7 @@ const DataTable = () => {
 
   const handleAcceptChange = (row) => {
     const updatedRow = { ...row, accept: !row.accept };
-    const reportRef = ref(database, `Reports/${row.id}`);
+    const reportRef = ref(database, `Reports/${row.reportID}`);
 
     update(reportRef, { accept: updatedRow.accept }).then(() => fetchData());
   };
@@ -88,7 +137,7 @@ const DataTable = () => {
   };
 
   const handleDelete = () => {
-    const reportRef = ref(database, `Reports/${selectedRow.id}`);
+    const reportRef = ref(database, `Reports/${selectedRow.reportID}`);
     const locationRef = ref(database, `Locations/${selectedRow.locID}`);
     const thiefRef = ref(database, `Thiefs/${selectedRow.thiefID}`);
 
@@ -169,7 +218,7 @@ const DataTable = () => {
                   <td>{row.stolen_things}</td>
                   <td>{row.gender}</td>
                   <td>{row.race}</td>
-                  <td>{row.shave ? "Yes" : "No"}</td>
+                  <td>{row.shave}</td>
                   <td>{row.glasses ? "Yes" : "No"}</td>
                   <td>{row.body_length}</td>
                   <td>{row.body_size}</td>
@@ -177,7 +226,7 @@ const DataTable = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDetailsClick(row.id);
+                        handleDetailsClick(row.reportID);
                       }}
                     >
                       세부내용 보기
@@ -237,7 +286,7 @@ const DataTable = () => {
                   <td>{row.stolen_things}</td>
                   <td>{row.gender}</td>
                   <td>{row.race}</td>
-                  <td>{row.shave ? "Yes" : "No"}</td>
+                  <td>{row.shave}</td>
                   <td>{row.glasses ? "Yes" : "No"}</td>
                   <td>{row.body_length}</td>
                   <td>{row.body_size}</td>
@@ -245,7 +294,7 @@ const DataTable = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDetailsClick(row.id);
+                        handleDetailsClick(row.reportID);
                       }}
                     >
                       세부내용 보기
