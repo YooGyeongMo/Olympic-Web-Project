@@ -53,19 +53,22 @@ const Map = () => {
     );
   }, [apiKey]); // 의존성 배열이 비어있어 맵 초기화는 컴포넌트가 마운트될 때 한 번만 실행됩니다.
 
-  const placeMarker = useCallback((location, mapInstance) => {
-    if (marker) {
-      marker.setPosition(location); // 기존 마커의 위치를 업데이트
-    } else {
-      const newMarker = new window.google.maps.Marker({
-        position: location,
-        map: mapInstance,
-      });
-      setMarker(newMarker);
-    }
-    setLatitude(location.lat().toFixed(6));
-    setLongitude(location.lng().toFixed(6));
-  }, [marker]);
+  const placeMarker = useCallback(
+    (location, mapInstance) => {
+      if (marker) {
+        marker.setPosition(location); // 기존 마커의 위치를 업데이트
+      } else {
+        const newMarker = new window.google.maps.Marker({
+          position: location,
+          map: mapInstance,
+        });
+        setMarker(newMarker);
+      }
+      setLatitude(location.lat().toFixed(6));
+      setLongitude(location.lng().toFixed(6));
+    },
+    [marker]
+  );
 
   useEffect(() => {
     let clickListener;
@@ -102,25 +105,76 @@ const Map = () => {
     }
   };
 
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const reportRef = ref(database, "Reports");
+  //   const newReport = {
+  //     latitude,
+  //     longitude,
+  //     description,
+  //     timestamp: new Date().toISOString(),
+  //   };
+  //   push(reportRef, newReport).then(() => {
+  //     setMarkerMode(false);
+  //     setShowForm(false);
+  //     setLatitude("");
+  //     setLongitude("");
+  //     setDescription("");
+  //     if (marker) {
+  //       marker.setMap(null);
+  //       setMarker(null);
+  //     }
+  //   });
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const reportRef = ref(database, "Reports");
     const newReport = {
-      latitude,
-      longitude,
-      description,
+      accept: false,
+      ReportsDetail: description,
       timestamp: new Date().toISOString(),
     };
-    push(reportRef, newReport).then(() => {
-      setMarkerMode(false);
-      setShowForm(false);
-      setLatitude("");
-      setLongitude("");
-      setDescription("");
-      if (marker) {
-        marker.setMap(null);
-        setMarker(null);
-      }
+
+    // Reports 테이블에 데이터 추가
+    push(reportRef, newReport).then((reportSnapshot) => {
+      const reportID = reportSnapshot.key; // 새로 생성된 reportID 가져오기
+
+      const locationRef = ref(database, "Locations");
+      const newLocation = {
+        reportID: reportID,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      };
+
+      // Locations 테이블에 데이터 추가
+      push(locationRef, newLocation).then(() => {
+        const thiefRef = ref(database, "Thiefs");
+        const newThief = {
+          reportID: reportID,
+          stolen_things: "Unknown", // 기본 값 또는 사용자 입력 값 사용
+          gender: "Unknown", // 기본 값 또는 사용자 입력 값 사용
+          race: "Unknown", // 기본 값 또는 사용자 입력 값 사용
+          shave: "Unknown", // 기본 값 또는 사용자 입력 값 사용
+          glasses: false, // 기본 값 또는 사용자 입력 값 사용
+          body_length: 0.0, // 기본 값 또는 사용자 입력 값 사용
+          body_size: "Unknown", // 기본 값 또는 사용자 입력 값 사용
+          scale: 1, // 기본 값 또는 사용자 입력 값 사용
+        };
+
+        // Thiefs 테이블에 데이터 추가
+        push(thiefRef, newThief).then(() => {
+          setMarkerMode(false);
+          setShowForm(false);
+          setLatitude("");
+          setLongitude("");
+          setDescription("");
+          if (marker) {
+            marker.setMap(null);
+            setMarker(null);
+          }
+        });
+      });
     });
   };
 
