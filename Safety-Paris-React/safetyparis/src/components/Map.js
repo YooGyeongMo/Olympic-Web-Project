@@ -4,6 +4,7 @@ import { database } from "../firebase";
 import { ref, push, onValue } from "firebase/database";
 import { FaPaperPlane } from "react-icons/fa";
 import { MdOutlineLocalPolice } from "react-icons/md";
+import { IoIosHelpCircle } from "react-icons/io";
 import Swal from "sweetalert2";
 import "./Map.css";
 
@@ -346,8 +347,8 @@ const Map = () => {
             stolen_things: stolenThings || defaultStolenThings,
             gender: gender || defaultGender,
             race: race || defaultRace,
-            shave: shave ? "Yes" : "No",
-            glasses: glasses ? "Yes" : "No",
+            shave: shave ? "수염있음" : "수염없음",
+            glasses: glasses ? "안경 착용" : "안경 미착용",
             body_length: bodyLength || defaultBodyLength, // 문자열로 기본값 설정
             body_size: bodySize || defaultBodySize,
             scale: scale || defaultScale, // 문자열로 기본값 설정
@@ -448,6 +449,13 @@ const Map = () => {
           rel="noopener noreferrer"
           className="help-btn"
         >
+          <IoIosHelpCircle
+            style={{
+              width: "20px",
+              height: "20px",
+              marginRight: "8px",
+            }}
+          />
           도움 지원
         </a>
       </div>
@@ -621,24 +629,63 @@ const Map = () => {
         <div className="overlay">
           <div className="central-form">
             <div className="form-header">
-              <h2>자세한 정보</h2>
+              <h2>위치</h2>
             </div>
-            <p>{selectedAddress}</p>
+            <p className="detail-info-lo-data">{selectedAddress}</p>
             {reportDetails && (
               <div>
                 <h2>인상착의</h2>
-                <p>성별: {reportDetails.gender}</p>
-                <p>인종: {reportDetails.race}</p>
-                <p>수염 유무: {reportDetails.shave}</p>
-                <p>안경 유무: {reportDetails.glasses}</p>
-                <p>키: {reportDetails.body_length}</p>
-                <p>체형: {reportDetails.body_size}</p>
-                <p>범인의 인원 수: {reportDetails.scale}</p>
+                <div className="detail-info-category2">
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">성별:</p>
+                    <p className="detail-info-data">{reportDetails.gender}</p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">인종:</p>
+                    <p className="detail-info-data"> {reportDetails.race}</p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">수염 유무:</p>
+                    <p className="detail-info-data"> {reportDetails.shave}</p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">안경 유무:</p>
+                    <p className="detail-info-data"> {reportDetails.glasses}</p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">키:</p>
+                    <p className="detail-info-data">
+                      {reportDetails.body_length}
+                    </p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">체형:</p>
+                    <p className="detail-info-data">
+                      {reportDetails.body_size}
+                    </p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">범인의 인원 수:</p>
+                    <p className="detail-info-data"> {reportDetails.scale}</p>
+                  </div>
+                </div>
                 <h2>상세한 설명</h2>
-                <p>도난 품목: {reportDetails.stolen_things}</p>
-                <p>상세 내용: {reportDetails.ReportsDetail}</p>
+                <div className="detail-info-category2">
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">도난 품목: </p>
+                    <p className="detail-info-data">
+                      {reportDetails.stolen_things}
+                    </p>
+                  </div>
+                  <div className="detail-info-category">
+                    <p className="detail-info-kind">상세 내용:</p>
+                    <p className="detail-info-data">
+                      {reportDetails.ReportsDetail}
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}{" "}
+            )}
             <div className="close-btn-container">
               <button className="close-btn" onClick={closeForm}>
                 닫기
@@ -651,4 +698,4 @@ const Map = () => {
   );
 };
 
-export default Map;
+export default Map; // 컴포넌트 내보내기

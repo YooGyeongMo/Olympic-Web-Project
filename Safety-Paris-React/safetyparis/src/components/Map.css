@@ -129,6 +129,7 @@ body {
 .report-btn:hover {
   background-color: #3d72ff; /* 마우스를 올렸을 때 배경색 */
   color: white;
+  transform: scale(1.10); /* 호버 시 버튼 크기 살짝 증가 */
 }
 
 .logo-button {
@@ -426,15 +427,13 @@ body {
 }
 
 .central-form p {
-  font-size: 16px;
-  color: #666;
+  
   line-height: 1.6;
-  margin-bottom: 20px;
 }
 
 .central-form h2 {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 25px;
+  font-weight: 800;
   color: #3d72ff;
   margin-top: 20px;
   margin-bottom: 10px;
@@ -442,13 +441,7 @@ body {
   padding-bottom: 5px;
 }
 
-.central-form p:last-child {
-  margin-bottom: 0;
-}
 
-.central-form .info-section {
-  margin-bottom: 20px;
-}
 
 .central-form .info-section h2 {
   color: #3d72ff;
@@ -460,17 +453,12 @@ body {
 .central-form .info-section p {
   font-size: 16px;
   color: #333;
-  line-height: 1.6;
-  margin-bottom: 10px;
+  line-height: 1.6
 }
 
 .central-form .info-section p span {
   font-weight: 600;
   color: #3d72ff;
-}
-
-.central-form .info-section p:last-child {
-  margin-bottom: 0;
 }
 
 .central-form .close-btn {
@@ -516,6 +504,8 @@ body {
 
 .help-btn {
   position: fixed; /* fixed로 변경하여 스크롤 시에도 버튼이 고정되도록 함 */
+  display:flex;
+  flex-direction: row;
   bottom: 10px; /* 하단에서 10px 위로 */
   right: 10px; /* 오른쪽에서 10px 왼쪽으로 */
   background-color: #3d72ff;
@@ -534,4 +524,32 @@ body {
 .help-btn:hover {
   background-color: #ff3d54;
   transform: scale(1.05); /* 호버 시 버튼 크기 살짝 증가 */
+}
+
+.detail-info-category{
+  display:flex;
+
+  flex-direction: row;
+}
+
+.detail-info-kind {
+  font-weight: 700; /* 글자 굵게 */
+  color: black; /* 글자색 */
+  margin-right: 10px; /* 오른쪽 여백 추가 */
+}
+
+.detail-info-data {
+  font-weight: 500; /* 글자 굵게 */
+  color: #333; /* 글자색 */
+}
+
+.detail-info-lo-data {
+  font-weight: 800; /* 글자 굵게 */
+  color: black; /* 글자색 */
+  font-size : 20px;
+}
+
+.detail-info-category2 {
+  display:flex;
+  flex-direction: column;
 }
