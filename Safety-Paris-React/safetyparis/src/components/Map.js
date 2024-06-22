@@ -34,44 +34,72 @@ const Map = () => {
   const [reportDetails, setReportDetails] = useState(null); // 선택된 보고서의 상세 정보를 저장하는 상태
 
   const fetchReportDetails = useCallback((reportId) => {
-    // 지정된 reportId를 사용하여 위치 정보 참조를 생성한다.
-    const locationRef = ref(database, `Locations/${reportId}`); // 위치 정보에 대한 실시간 업데이트를 수신한다.
+    const locationRef = ref(database, `Locations/${reportId}`);
     onValue(locationRef, (locationSnapshot) => {
-      // 스냅샷에서 위치 데이터를 추출한다.
-      const locationData = locationSnapshot.val(); // 위치 데이터와 연결된 보고서 ID가 있는지 확인한다.
+      const locationData = locationSnapshot.val();
       if (locationData && locationData.reportID) {
-        // 연결된 보고서 ID를 사용하여 보고서 세부 정보 참조를 생성한다.
-        // 보고서 세부 정보 가져오기
-        const reportRef = ref(database, `Reports/${locationData.reportID}`); // 보고서 세부 정보에 대한 실시간 업데이트를 수신한다.
-        onValue(reportRef, (reportSnapshot) => {
-          // 스냅샷에서 보고서 데이터를 추출한다.
-          const reportData = reportSnapshot.val();
+        const reportRef = ref(database, `Reports/${locationData.reportID}`);
+        const thiefRef = ref(database, `Thiefs`);
 
-          // 도둑에 대한 정보를 저장하고 있는 레퍼런스를 생성한다.
-          const thiefRef = ref(database, `Thiefs`);
+        // Promise를 사용해 비동기 호출을 감싸기
+        const reportPromise = new Promise((resolve, reject) => {
+          onValue(reportRef, (reportSnapshot) => {
+            const reportData = reportSnapshot.val();
+            if (reportData) {
+              resolve(reportData);
+            } else {
+              reject(new Error("Report 데이터 오류"));
+            }
+          });
+        });
+
+        const thiefPromise = new Promise((resolve, reject) => {
           onValue(thiefRef, (thiefSnapshot) => {
-            // 도둑 정보에 대한 실시간 업데이트를 수신한다.
             const thiefs = thiefSnapshot.val();
             const thiefData = Object.values(thiefs).find(
               (thief) => thief.reportID === locationData.reportID
             );
-            // 도둑 데이터가 존재하면 상태를 업데이트
             if (thiefData) {
-              setReportDetails({
-                ...reportData,
-                ...locationData,
-                ...thiefData,
-              });
+              resolve(thiefData);
             } else {
-              console.error("Error: Thief 데이터 오류");
+              reject(new Error("Thief 데이터 오류"));
             }
           });
         });
+
+        // 모든 비동기 작업이 완료될 때까지 대기
+        Promise.all([reportPromise, thiefPromise])
+          .then(([reportData, thiefData]) => {
+            // Timestamp 형식 변환
+            const formattedTime = new Date(reportData.timestamp)
+              .toLocaleString("ko-KR", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })
+              .replace(
+                /(\d+). (\d+). (\d+). (\d+):(\d+)./,
+                "$1년 $2월 $3일 $4시 $5분"
+              );
+
+            setReportDetails({
+              ...reportData,
+              ...locationData,
+              ...thiefData,
+              formattedTime, // 형식화된 시간을 상태에 추가
+            });
+          })
+          .catch((error) => {
+            console.error(error.message);
+          });
       } else {
         console.error("Error: Location 혹은 Report 데이터 오류.");
       }
     });
-  }, []); // 이 콜백은 의존성 배열이 비어 있으므로 컴포넌트가 마운트될 때 한 번만 생성
+  }, []);
 
   // 'openForm' 함수는 특정 주소와 보고서 ID를 인자로 받아 처리하는데, useCallback 훅을 사용하여 메모이제이션.
   const openForm = useCallback(
@@ -195,11 +223,13 @@ const Map = () => {
 
         const div = document.createElement("div");
         const root = ReactDOM.createRoot(div);
+
         const content = (
           <InfoWindowContent
             address={markerData.address}
             onOpenForm={openForm}
-            reportId={markerData.id} // reportId 추가
+            reportId={markerData.id} // reportId 전달
+            reportID={markerData.reportID} // reportID 전달
           />
         );
         root.render(content);
@@ -215,7 +245,47 @@ const Map = () => {
   }, [map, markers, openForm]); // map, markers, openForm 변경에 의존
 
   //컴포넌트 정의: 마커 클릭 시 표시되는 정보 창 컨텐츠
-  const InfoWindowContent = ({ address, onOpenForm, reportId }) => {
+  const InfoWindowContent = ({ address, onOpenForm, reportId, reportID }) => {
+    const [formattedTime, setFormattedTime] = useState("");
+
+    useEffect(() => {
+      if (!reportID) {
+        console.error("Error: reportID가 전달되지 않았습니다.");
+        return;
+      }
+
+      console.log(`Fetching data for reportID: ${reportID}`); // reportID 디버깅
+
+      const reportRef = ref(database, `Reports/${reportID}`);
+      onValue(
+        reportRef,
+        (reportSnapshot) => {
+          const reportData = reportSnapshot.val();
+          if (reportData) {
+            const formattedTime = new Date(reportData.timestamp)
+              .toLocaleString("ko-KR", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })
+              .replace(
+                /(\d+). (\d+). (\d+). (\d+):(\d+)./,
+                "$1년 $2월 $3일 $4시 $5분"
+              );
+            setFormattedTime(formattedTime);
+          } else {
+            console.error("Error: Report 데이터 오류. reportID:", reportID);
+          }
+        },
+        (error) => {
+          console.error("Firebase error:", error);
+        }
+      );
+    }, [reportID]);
+
     return (
       <div className="info-window-1">
         <div className="info-window-2">
@@ -224,9 +294,7 @@ const Map = () => {
             style={{ marginRight: "8px" }}
           />
           <span className="marker-info-window-caution">위험지역</span>
-        </div>
-        <div className="info-window-3">
-          <p className="marker-info-address">{address}</p>
+
           <button
             className="marker-info-btn"
             onClick={() => onOpenForm(address, reportId)}
@@ -234,6 +302,16 @@ const Map = () => {
             자세히 보기
           </button>
         </div>
+        <div className="info-window-3">
+          <p className="marker-info-address">{address}</p>
+        </div>
+        {formattedTime && (
+          <div className="marker-info-time-border">
+            <p className="marker-info-time-title">범죄 시간: </p>
+            <p className="marker-info-time">{formattedTime}</p>
+            {/* 시간 정보 */}
+          </div>
+        )}
       </div>
     );
   };

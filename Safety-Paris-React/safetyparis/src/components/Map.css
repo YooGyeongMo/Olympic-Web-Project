@@ -320,7 +320,7 @@ body {
 .info-window-2 {
   display: flex;
   flex-direction: row;
-  align-items: start;
+  align-items: center;
   background-color: white;
   font-family: Arial, sans-serif;
 }
@@ -358,7 +358,7 @@ body {
   display: inline-block; /* 인라인 블록 */
   font-size: 10px; /* 폰트 크기 */
   font-weight: bold; /* 폰트 굵게 */
-  margin: 4px 2px; /* 여백 */
+  margin: 4px 20px; /* 여백 */
   cursor: pointer; /* 커서 포인터로 변경 */
   border-radius: 12px; /* 둥근 모서리 */
 }
@@ -552,4 +552,19 @@ body {
 .detail-info-category2 {
   display:flex;
   flex-direction: column;
+}
+
+.marker-info-time-border{
+  display: flex;
+  flex-direction: row;
+}
+
+.marker-info-time-title {
+  font-weight: 600;
+  color: black;
+  margin-right: 10px;
+}
+.marker-info-time{
+  font-weight: 600;
+  color: black;
 }
