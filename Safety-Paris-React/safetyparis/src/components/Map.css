@@ -389,8 +389,11 @@ body {
   border-radius: 12px;
   max-width: 500px;
   width: 90%;
+  max-height: 80%; /* 폼의 최대 높이 설정 */
+  overflow-y: auto; /* 세로 스크롤 가능하도록 설정 */
   animation: slide-in 0.3s ease-out;
 }
+
 
 .form-header {
   display: flex;
@@ -483,6 +486,7 @@ body {
 
 .close-btn-container {
   display: flex;
+  margin-top: 20px; /* 버튼 위에 10px 공백 추가 */
   justify-content: center;
   align-items: center;
   height: 100%; /* 폼 전체 높이에 맞추어 중앙에 위치하게 함 */
@@ -528,6 +532,6 @@ body {
 }
 
 .help-btn:hover {
-  background-color: #2a50cc;
+  background-color: #ff3d54;
   transform: scale(1.05); /* 호버 시 버튼 크기 살짝 증가 */
 }
