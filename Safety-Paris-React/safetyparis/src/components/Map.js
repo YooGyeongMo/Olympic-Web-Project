@@ -8,49 +8,53 @@ import Swal from "sweetalert2";
 import "./Map.css";
 
 const Map = () => {
-  const [markerMode, setMarkerMode] = useState(false);
-  const [marker, setMarker] = useState(null);
-  const [map, setMap] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [description, setDescription] = useState("");
-  const [stolenThings, setStolenThings] = useState("");
-  const [gender, setGender] = useState("");
-  const [race, setRace] = useState("");
-  const [shave, setShave] = useState(false);
-  const [glasses, setGlasses] = useState(false);
-  const [bodyLength, setBodyLength] = useState("");
-  const [bodySize, setBodySize] = useState("");
-  const [scale, setScale] = useState(""); //범인 인원수
-  const [descriptionCharCount, setDescriptionCharCount] = useState(0);
-  const [currentStep, setCurrentStep] = useState(1); // 제보하기 폼
-  const [markers, setMarkers] = useState([]); // Firebase에서 가져온 마커 데이터 저장
-  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  const [address, setAddress] = useState("");
-  const [isFormOpen, setFormOpen] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState("");
-  const [reportDetails, setReportDetails] = useState(null);
+  const [markerMode, setMarkerMode] = useState(false); // 마커 모드 상태 (마커 추가 모드인지 여부)
+  const [marker, setMarker] = useState(null); // 현재 마커 객체를 저장하는 상태
+  const [map, setMap] = useState(null); // 지도 객체를 저장하는 상태
+  const [showForm, setShowForm] = useState(false); // 폼 표시 여부 상태
+  const [latitude, setLatitude] = useState(""); // 선택된 위치의 위도를 저장하는 상태
+  const [longitude, setLongitude] = useState(""); // 선택된 위치의 경도를 저장하는 상태
+  const [description, setDescription] = useState(""); // 범죄에 대한 설명을 저장하는 상태
+  const [stolenThings, setStolenThings] = useState(""); // 도난당한 물품에 대한 정보를 저장하는 상태
+  const [gender, setGender] = useState(""); // 범인의 성별을 저장하는 상태
+  const [race, setRace] = useState(""); // 범인의 인종을 저장하는 상태
+  const [shave, setShave] = useState(false); // 범인의 수염 유무를 저장하는 상태
+  const [glasses, setGlasses] = useState(false); // 범인의 안경 착용 여부를 저장하는 상태
+  const [bodyLength, setBodyLength] = useState(""); // 범인의 키 정보를 저장하는 상태
+  const [bodySize, setBodySize] = useState(""); // 범인의 체형 정보를 저장하는 상태
+  const [scale, setScale] = useState(""); // 범죄에 관련된 인원 수를 저장하는 상태
+  const [descriptionCharCount, setDescriptionCharCount] = useState(0); // 입력된 설명의 문자 수를 계산하는 상태
+  const [currentStep, setCurrentStep] = useState(1); // 제보하기 폼의 현재 단계를 저장하는 상태
+  const [markers, setMarkers] = useState([]); // Firebase에서 가져온 마커 데이터를 저장하는 상태
+  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY; // 환경 변수에서 구글 맵스 API 키를 가져오는 상태
+  const [address, setAddress] = useState(""); // 선택된 위치의 주소를 저장하는 상태
+  const [isFormOpen, setFormOpen] = useState(false); // 상세 정보 폼의 표시 여부를 저장하는 상태
+  const [selectedAddress, setSelectedAddress] = useState(""); // 선택된 주소를 저장하는 상태
+  const [reportDetails, setReportDetails] = useState(null); // 선택된 보고서의 상세 정보를 저장하는 상태
 
   const fetchReportDetails = useCallback((reportId) => {
-    // 위치 정보 가져오기
-    const locationRef = ref(database, `Locations/${reportId}`);
+    // 지정된 reportId를 사용하여 위치 정보 참조를 생성한다.
+    const locationRef = ref(database, `Locations/${reportId}`); // 위치 정보에 대한 실시간 업데이트를 수신한다.
     onValue(locationRef, (locationSnapshot) => {
-      const locationData = locationSnapshot.val();
+      // 스냅샷에서 위치 데이터를 추출한다.
+      const locationData = locationSnapshot.val(); // 위치 데이터와 연결된 보고서 ID가 있는지 확인한다.
       if (locationData && locationData.reportID) {
+        // 연결된 보고서 ID를 사용하여 보고서 세부 정보 참조를 생성한다.
         // 보고서 세부 정보 가져오기
-        const reportRef = ref(database, `Reports/${locationData.reportID}`);
+        const reportRef = ref(database, `Reports/${locationData.reportID}`); // 보고서 세부 정보에 대한 실시간 업데이트를 수신한다.
         onValue(reportRef, (reportSnapshot) => {
+          // 스냅샷에서 보고서 데이터를 추출한다.
           const reportData = reportSnapshot.val();
 
-          // 도둑 정보 가져오기
+          // 도둑에 대한 정보를 저장하고 있는 레퍼런스를 생성한다.
           const thiefRef = ref(database, `Thiefs`);
           onValue(thiefRef, (thiefSnapshot) => {
+            // 도둑 정보에 대한 실시간 업데이트를 수신한다.
             const thiefs = thiefSnapshot.val();
             const thiefData = Object.values(thiefs).find(
               (thief) => thief.reportID === locationData.reportID
             );
-
+            // 도둑 데이터가 존재하면 상태를 업데이트
             if (thiefData) {
               setReportDetails({
                 ...reportData,
@@ -58,16 +62,17 @@ const Map = () => {
                 ...thiefData,
               });
             } else {
-              console.error("Error: Missing thief data.");
+              console.error("Error: Thief 데이터 오류");
             }
           });
         });
       } else {
-        console.error("Error: Missing location or report data.");
+        console.error("Error: Location 혹은 Report 데이터 오류.");
       }
     });
-  }, []);
+  }, []); // 이 콜백은 의존성 배열이 비어 있으므로 컴포넌트가 마운트될 때 한 번만 생성
 
+  // 'openForm' 함수는 특정 주소와 보고서 ID를 인자로 받아 처리하는데, useCallback 훅을 사용하여 메모이제이션.
   const openForm = useCallback(
     (address, reportId) => {
       setSelectedAddress(address);
@@ -76,7 +81,7 @@ const Map = () => {
     },
     [fetchReportDetails]
   );
-
+  // 'closeForm' 함수는 폼을 닫고 관련 상태를 초기화
   const closeForm = () => {
     setFormOpen(false);
     setSelectedAddress("");
@@ -104,8 +109,9 @@ const Map = () => {
     // Firebase에서 마커 데이터 가져오기
     const reportsRef = ref(database, "Reports");
     onValue(reportsRef, (snapshot) => {
-      const reportsData = snapshot.val();
+      const reportsData = snapshot.val(); // 데이터베이스 스냅샷에서 값을 추출
       if (reportsData) {
+        // 승인된 보고서만 필터링
         const acceptedReports = Object.keys(reportsData)
           .filter((key) => reportsData[key].accept)
           .map((key) => ({
@@ -113,9 +119,11 @@ const Map = () => {
             ...reportsData[key],
           }));
 
+        // Firebase의 "Locations" 참조에서 위치 데이터를 실시간으로 가져옴.
         const locationsRef = ref(database, "Locations");
         onValue(locationsRef, (snapshot) => {
-          const locationsData = snapshot.val();
+          const locationsData = snapshot.val(); // 위치 데이터 추출
+          // 승인된 보고서에 해당하는 위치 데이터만 필터링하여 마커로 표시
           if (locationsData) {
             const loadedMarkers = Object.keys(locationsData)
               .filter((key) =>
@@ -127,14 +135,14 @@ const Map = () => {
                 id: key,
                 ...locationsData[key],
               }));
-            setMarkers(loadedMarkers);
-            console.log(loadedMarkers);
+            setMarkers(loadedMarkers); // 마커 상태 업데이트
+            console.log(loadedMarkers); // 콘솔에 로드된 마커 출력
           }
         });
       }
     });
   };
-
+  // 첫 번째 useEffect: Google Maps 스크립트를 동적으로 로드
   useEffect(() => {
     const loadScript = (url, callback) => {
       const scriptExists = document.querySelector(`script[src="${url}"]`);
@@ -151,7 +159,7 @@ const Map = () => {
         callback();
       }
     };
-
+    // 스크립트를 로드하고 initMap 함수를 호출
     loadScript(
       `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`,
       () => {
@@ -163,8 +171,9 @@ const Map = () => {
         }
       }
     );
-  }, [apiKey]);
+  }, [apiKey]); // apiKey 변화에 의존
 
+  // 두 번째 useEffect: 지도 객체(map)와 마커(markers) 배열이 있을 때 마커를 지도에 추가
   useEffect(() => {
     if (map) {
       markers.forEach((markerData) => {
@@ -202,8 +211,9 @@ const Map = () => {
         });
       });
     }
-  }, [map, markers, openForm]);
+  }, [map, markers, openForm]); // map, markers, openForm 변경에 의존
 
+  //컴포넌트 정의: 마커 클릭 시 표시되는 정보 창 컨텐츠
   const InfoWindowContent = ({ address, onOpenForm, reportId }) => {
     return (
       <div className="info-window-1">
@@ -234,6 +244,7 @@ const Map = () => {
     }
   }, [reportDetails]);
 
+  // 마커 설정 함수: 사용자 클릭에 의해 지도에 새 마커를 추가합니다.
   const placeMarker = useCallback(
     (location, mapInstance) => {
       if (marker) {
@@ -268,6 +279,7 @@ const Map = () => {
     [marker]
   );
 
+  // 클릭 리스너 설정: 마커 모드가 활성화된 경우 지도 클릭 시 마커를 추가
   useEffect(() => {
     let clickListener;
     if (map && markerMode) {
@@ -276,7 +288,7 @@ const Map = () => {
         placeMarker(e.latLng, map);
       });
     }
-
+    // 클린업 함수: 컴포넌트 언마운트 시 리스너를 제거.
     return () => {
       if (clickListener) {
         window.google.maps.event.removeListener(clickListener);
@@ -284,8 +296,9 @@ const Map = () => {
     };
   }, [map, markerMode, placeMarker]);
 
+  // handleSubmit 함수는 폼 제출을 처리.
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 폼의 기본 제출 동작을 방지
 
     //마커가 찍히지 않은 경우
     if (!latitude || !longitude) {
@@ -306,6 +319,7 @@ const Map = () => {
     const defaultBodySize = "범인 체형 알 수없음";
     const defaultScale = "범인들의 규모 알 수없음";
 
+    // 보고서 정보를 데이터베이스에 저장
     const reportRef = ref(database, "Reports");
     const newReport = {
       accept: false,
@@ -324,7 +338,7 @@ const Map = () => {
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
         };
-
+        // 위치 정보를 저장.
         push(locationRef, newLocation).then(() => {
           const thiefRef = ref(database, "Thiefs");
           const newThief = {
@@ -340,7 +354,7 @@ const Map = () => {
           };
 
           console.log(newThief, newLocation, newReport); // 실제로 저장되는 값 확인
-
+          // 도둑 정보를 저장
           push(thiefRef, newThief).then(() => {
             setMarkerMode(false);
             setShowForm(false);
@@ -380,6 +394,7 @@ const Map = () => {
       });
   };
 
+  // toggleForm 함수는 폼의 표시 상태를 토글
   const toggleForm = () => {
     setShowForm((prev) => !prev);
     setMarkerMode((prev) => !prev);
@@ -403,7 +418,7 @@ const Map = () => {
     setScale("");
     setDescriptionCharCount(0); // 문자 수 초기화
   };
-
+  // 제보 내용을 입력받는 폼의 입력 값을 상태로 저장.
   const handleDescriptionChange = (e) => {
     const value = e.target.value;
     if (value.length <= 500) {
@@ -411,10 +426,11 @@ const Map = () => {
       setDescriptionCharCount(value.length);
     }
   };
-  //폼 화면관리
+  // 폼 제출 시 다음 단계로 진행
   const nextStep = () => setCurrentStep(currentStep + 1);
   const prevStep = () => setCurrentStep(currentStep - 1);
 
+  // 컴포넌트의 반환 부분, UI 구성 요소를 렌더링.
   return (
     <div className="map-container">
       <div className="top-banner">

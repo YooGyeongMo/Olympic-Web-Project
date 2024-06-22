@@ -3,22 +3,28 @@ import { database } from "../firebase";
 import { ref, onValue, remove, update } from "firebase/database";
 import "./DataTable.css";
 
+// DataTable 컴포넌트 정의
 const DataTable = () => {
-  const [data, setData] = useState([]);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [modalMessage, setModalMessage] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [details, setDetails] = useState("");
+  // 상태 관리를 위한 useState 사용
+  const [data, setData] = useState([]); // 데이터 목록 상태
+  const [selectedRow, setSelectedRow] = useState(null); // 선택된 행 상태
+  const [modalMessage, setModalMessage] = useState(""); // 모달 메시지 상태
+  const [showModal, setShowModal] = useState(false); // 모달 표시 상태
+  const [details, setDetails] = useState(""); // 세부 정보 상태
 
+  // 컴포넌트가 마운트 될 때 데이터를 가져오는 useEffect
   useEffect(() => {
     fetchData();
   }, []);
 
+  // 데이터를 가져오는 함수
   const fetchData = () => {
+    // Firebase 참조 정의
     const reportsRef = ref(database, "Reports");
     const locationsRef = ref(database, "Locations");
     const thiefsRef = ref(database, "Thiefs");
 
+    // 각 데이터 소스에서 프로미스를 생성하여 데이터를 가져옴.
     const reportsPromise = new Promise((resolve) => {
       onValue(reportsRef, (snapshot) => {
         resolve(snapshot.val());
@@ -36,12 +42,12 @@ const DataTable = () => {
         resolve(snapshot.val());
       });
     });
-
+    // 모든 데이터 소스에서 가져온 데이터를 결합
     Promise.all([reportsPromise, locationsPromise, thiefsPromise]).then(
       (values) => {
         const [reports, locations, thiefs] = values;
         const combinedData = [];
-
+        // 결합 로직을 실행하여 최종 데이터를 설정
         const reportMap = {};
         for (let id in reports) {
           reportMap[id] = {
@@ -124,23 +130,23 @@ const DataTable = () => {
       }
     );
   };
-
+  // 행의 'accept' 상태를 토글하는 함수
   const handleAcceptChange = (row) => {
     const updatedRow = { ...row, accept: !row.accept };
     const reportRef = ref(database, `Reports/${row.reportID}`);
 
     update(reportRef, { accept: updatedRow.accept }).then(() => fetchData());
   };
-
+  // 행을 클릭할 때 실행되는 함수로, 선택된 행을 상태에 저장
   const handleRowClick = (row) => {
     setSelectedRow(row);
   };
-
+  // 선택된 행을 삭제하는 함수
   const handleDelete = () => {
     const reportRef = ref(database, `Reports/${selectedRow.reportID}`);
     const locationRef = ref(database, `Locations/${selectedRow.locID}`);
     const thiefRef = ref(database, `Thiefs/${selectedRow.thiefID}`);
-
+    // 관련된 모든 데이터를 삭제하고 데이터를 새로 가져옴
     remove(reportRef).then(() => fetchData());
     remove(locationRef).then(() => fetchData());
     remove(thiefRef).then(() => fetchData());
@@ -148,6 +154,7 @@ const DataTable = () => {
     setSelectedRow(null);
   };
 
+  // 세부 정보를 모달로 표시하는 함수
   const handleDetailsClick = (reportID) => {
     const reportRef = ref(database, `Reports/${reportID}`);
     onValue(
@@ -172,10 +179,11 @@ const DataTable = () => {
     setShowModal(false);
     setDetails("");
   };
-
+  // 테이블에서 표시할 데이터를 필터링하는 부분
   const notAcceptedData = data.filter((item) => !item.accept);
   const acceptedData = data.filter((item) => item.accept);
 
+  // UI 컴포넌트 반환 부분
   return (
     <div className="table-container">
       <h3>승인 처리 필요</h3>
@@ -336,4 +344,4 @@ const DataTable = () => {
   );
 };
 
-export default DataTable;
+export default DataTable; //컴포넌트를 내보냄.
