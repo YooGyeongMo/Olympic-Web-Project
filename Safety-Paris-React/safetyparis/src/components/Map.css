@@ -364,46 +364,170 @@ body {
 
 .marker-info-btn:hover{
   background-color: #3d72ff;
+
   color:white;
 }
-
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* 검은색 반투명 배경 */
+  background: rgba(0, 0, 0, 0.7); /* 더 어두운 반투명 배경 */
   z-index: 999; /* 중앙 폼 바로 아래에 위치하도록 z-index 설정 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .central-form {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   background: white;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); /* 더 부드러운 그림자 효과 */
   z-index: 1000; /* 지도 위에 표시되도록 높은 z-index 설정 */
-  border-radius: 8px;
-  max-width: 400px;
-  width: 100%;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  animation: slide-in 0.3s ease-out;
 }
 
 .form-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .form-header h2 {
   margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  border-bottom: 2px solid #ddd; /* 밑줄 추가 */
+  padding-bottom: 10px;
+  width: 100%;
 }
 
 .form-header button {
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
+  color: #3d72ff;
+  transition: color 0.3s ease;
+}
+
+.form-header button:hover {
+  color: #ff3d54; /* 호버 시 색상 변경 */
+}
+
+.central-form p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.central-form h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3d72ff;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #ddd; /* 밑줄 추가 */
+  padding-bottom: 5px;
+}
+
+.central-form p:last-child {
+  margin-bottom: 0;
+}
+
+.central-form .info-section {
+  margin-bottom: 20px;
+}
+
+.central-form .info-section h2 {
+  color: #3d72ff;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #ddd; /* 밑줄 추가 */
+  padding-bottom: 5px;
+}
+
+.central-form .info-section p {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.central-form .info-section p span {
+  font-weight: 600;
+  color: #3d72ff;
+}
+
+.central-form .info-section p:last-child {
+  margin-bottom: 0;
+}
+
+.central-form .close-btn {
+  background: #3d72ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.close-btn-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* 폼 전체 높이에 맞추어 중앙에 위치하게 함 */
+}
+
+.close-btn {
+  padding: 10px 20px;
+  background-color: #3d72ff;
+  color: white;
+  border: none;
+  border-radius: 25px; /* 둥근 모서리 */
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 버튼에 그림자 효과 추가 */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.close-btn:hover {
+  background-color: #2a50cc;
+  transform: scale(1.05); /* 호버 시 버튼 크기 살짝 증가 */
+}
+
+.central-form .close-btn:hover {
+  background: #ff3d54;
+}
+
+.help-btn {
+  position: fixed; /* fixed로 변경하여 스크롤 시에도 버튼이 고정되도록 함 */
+  bottom: 10px; /* 하단에서 10px 위로 */
+  right: 10px; /* 오른쪽에서 10px 왼쪽으로 */
+  background-color: #3d72ff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px; /* 둥근 모서리 */
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 버튼에 그림자 효과 추가 */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.help-btn:hover {
+  background-color: #2a50cc;
+  transform: scale(1.05); /* 호버 시 버튼 크기 살짝 증가 */
 }
