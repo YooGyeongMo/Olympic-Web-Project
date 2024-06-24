@@ -9,8 +9,11 @@ import AdminPage from "./pages/AdminPage";
 import UserPage from "./pages/UserPage";
 import "./App.css";
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
 function Home() {
   const navigate = useNavigate();
+  console.log(apiUrl);
 
   return (
     <div className="home-container">
