@@ -458,7 +458,7 @@ const Map = () => {
               text: "제보가 성공적으로 접수되었습니다.귀하의 관심에 진심으로 감사드립니다.",
               icon: "success",
             }).then(() => {
-              window.location.reload();
+              // window.location.reload();
             });
           });
         });
