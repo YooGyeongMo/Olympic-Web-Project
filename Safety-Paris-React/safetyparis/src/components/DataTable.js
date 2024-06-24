@@ -226,8 +226,8 @@ const DataTable = () => {
                   <td>{row.stolen_things}</td>
                   <td>{row.gender}</td>
                   <td>{row.race}</td>
-                  <td>{row.shave ? "수염 있음" : " 수염 없음"}</td>
-                  <td>{row.glasses ? "안경 착용" : "안경 미착용"}</td>
+                  <td>{row.shave === "수염 있음" ? "수염 있음" : "수염 없음"}</td>
+                  <td>{row.glasses === "안경 착용" ?  "안경 착용" : "안경 미착용"}</td>
                   <td>{row.body_length}</td>
                   <td>{row.body_size}</td>
                   <td>
