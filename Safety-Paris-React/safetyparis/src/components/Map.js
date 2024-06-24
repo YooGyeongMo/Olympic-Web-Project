@@ -425,7 +425,7 @@ const Map = () => {
             stolen_things: stolenThings || defaultStolenThings,
             gender: gender || defaultGender,
             race: race || defaultRace,
-            shave: shave ? "수염있음" : "수염없음",
+            shave: shave ? "수염 있음" : "수염 없음",
             glasses: glasses ? "안경 착용" : "안경 미착용",
             body_length: bodyLength || defaultBodyLength, // 문자열로 기본값 설정
             body_size: bodySize || defaultBodySize,
